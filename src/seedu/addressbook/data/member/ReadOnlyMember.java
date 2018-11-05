@@ -17,7 +17,6 @@ public interface ReadOnlyMember {
     MemberTier getMemberTier();
     MemberTier updateTier(Points points);
     int getPointsValue();
-    void setPoints(int value);
 
 
     /**
