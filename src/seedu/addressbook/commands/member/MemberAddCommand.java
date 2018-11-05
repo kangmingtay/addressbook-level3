@@ -14,6 +14,7 @@ import seedu.addressbook.data.member.UniqueMemberList;
 public class MemberAddCommand extends Command {
 
     public static final String COMMAND_WORD = "addmember";
+    public static final String EMPTY_NAME_STRING = "baLpcbImfjsHuIhCnEKM";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ":\n" + "Adds a member to the address book. "
             + "Contact details can be marked private by prepending 'p' to the prefix.\n\t"
@@ -23,6 +24,8 @@ public class MemberAddCommand extends Command {
 
     public static final String MESSAGE_SUCCESS = "New member added: %1$s";
     public static final String MESSAGE_DUPLICATE_MEMBER = "This member already exists in the address book";
+    public static final String MESSAGE_NAME_CANNOT_BE_EMPTY_NAME_STRING =
+            "Member name cannot be the same as the empty name string.";
 
     private final Member toAdd;
 
@@ -37,10 +40,6 @@ public class MemberAddCommand extends Command {
         );
     }
 
-    public MemberAddCommand(Member toAdd) {
-        this.toAdd = toAdd;
-    }
-
     public ReadOnlyMember getMember() {
         return toAdd;
     }
@@ -48,10 +47,16 @@ public class MemberAddCommand extends Command {
     @Override
     public CommandResult execute() {
         try {
+            final MemberName name = toAdd.getName();
+            if (name.equals(new MemberName(EMPTY_NAME_STRING))) {
+                throw new IllegalValueException(MESSAGE_NAME_CANNOT_BE_EMPTY_NAME_STRING);
+            }
             rms.addMember(toAdd);
             return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
         } catch (UniqueMemberList.DuplicateMemberException dpe) {
             return new CommandResult(MESSAGE_DUPLICATE_MEMBER);
+        } catch (IllegalValueException e) {
+            return new CommandResult(MESSAGE_NAME_CANNOT_BE_EMPTY_NAME_STRING);
         }
     }
 

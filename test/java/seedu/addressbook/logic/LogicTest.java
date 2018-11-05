@@ -600,6 +600,8 @@ public class LogicTest {
 
     @Test
     public void execute_addmember_invalidMemberData() throws Exception {
+        assertMemberCommandBehavior("addmember baLpcbImfjsHuIhCnEKM",
+                MemberAddCommand.MESSAGE_NAME_CANNOT_BE_EMPTY_NAME_STRING);
         assertMemberCommandBehavior(
                 "addmember []\\[;]", MemberName.MESSAGE_NAME_CONSTRAINTS);
     }
@@ -723,17 +725,52 @@ public class LogicTest {
                 threeMembers);
     }
 
+    /**
+     * Test to check that a member's points is updated correctly.
+     * @throws Exception
+     */
     @Test
     public void updateMemberPoints() throws Exception {
         TestDataHelper helper = new TestDataHelper();
-        Points expectedPoints = new Points();
+        Points expectedPoints = new Points(5);
 
         Member m1 = helper.eve();
-        m1.updatePoints(-50, 0);
+        m1.updatePoints(50, 0);
         Points actualPoints = m1.getPoints();
-
         assertEquals(expectedPoints.getPoints(), actualPoints.getPoints());
     }
+
+    /**
+     * Test to check that the points field cannot be negative after updating and the correct error message is thrown.
+     * @throws Exception
+     */
+    @Test
+    public void updatePoints() throws Exception {
+        Points test = new Points();
+        Points expectedPoints = new Points();
+        String expectedMessage = Messages.MESSAGE_NEGATIVE_POINTS;
+        Points output = test.updatePoints(-50, 0);
+        assertEquals(expectedPoints.getPoints(), output.getPoints());
+    }
+
+    /**
+     * Test to check the setPoints method in the ReadOnlyMember and Points classes
+     * @throws Exception
+     */
+    @Test
+    public void setPoints() throws Exception {
+        Points test = new Points();
+        test.setPoints(50);
+        int output = test.getPoints();
+        int expected = 50;
+        assertEquals(expected, output);
+
+        ReadOnlyMember testMember = new Member();
+        testMember.setPoints(50);
+        assertEquals(expected, testMember.getPointsValue());
+    }
+
+
 
     @Test
     public void execute_addmenu_invalidArgsFormat() throws Exception {

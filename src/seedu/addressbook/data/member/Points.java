@@ -25,7 +25,7 @@ public class Points {
      * @param price of the order being made
      * @return updated points
      */
-    protected Points updatePoints(double price, int pointsToRedeem) {
+    public Points updatePoints(double price, int pointsToRedeem) {
         try {
             this.value += ((int) price) / 10;
             this.value -= pointsToRedeem;
