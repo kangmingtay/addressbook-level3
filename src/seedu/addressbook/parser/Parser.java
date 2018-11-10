@@ -1,6 +1,7 @@
 package seedu.addressbook.parser;
 
 import static seedu.addressbook.common.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.addressbook.common.Messages.MESSAGE_PRICE_LIMIT_EXCEEDED;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +53,8 @@ import seedu.addressbook.data.exception.IllegalValueException;
  * Parses user input.
  */
 public class Parser {
+
+    public static final int PRICE_STRING_MAX_LENGTH = 5;
 
     public static final Pattern INDEX_ARGS_FORMAT = Pattern.compile("(?<targetIndex>.+)");
 
@@ -278,6 +281,10 @@ public class Parser {
             return new IncorrectCommand(String.format(MESSAGE_INVALID_COMMAND_FORMAT, MenuAddCommand.MESSAGE_USAGE));
         }
         try {
+            String price = matcher.group("price").trim();
+            if (price.length() > PRICE_STRING_MAX_LENGTH) {
+                throw new IllegalValueException(MESSAGE_PRICE_LIMIT_EXCEEDED);
+            }
             return new MenuAddCommand(
                     matcher.group("name"),
 
