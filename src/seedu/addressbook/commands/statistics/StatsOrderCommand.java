@@ -13,7 +13,7 @@ import seedu.addressbook.data.statistics.AsciiTable;
 import seedu.addressbook.data.statistics.OrderDateTable;
 
 /**
- * Lists all food items in the address book to the user.
+ * Lists all order statistics in the Rms to the user.
  */
 public class StatsOrderCommand extends Command {
 
@@ -22,6 +22,8 @@ public class StatsOrderCommand extends Command {
     public static final String MESSAGE_USAGE = COMMAND_WORD + ":\n"
             + "Displays statistics information for orders.\n\t"
             + "Example: " + COMMAND_WORD;
+
+    public static final String MESSAGE_NO_ORDER = "There are no orders in the system.";
 
 
     @Override
@@ -33,7 +35,7 @@ public class StatsOrderCommand extends Command {
         StringBuilder sb = new StringBuilder();
         List<ReadOnlyOrder> allOrders = rms.getAllOrders().immutableListView();
         if (allOrders.isEmpty()) {
-            return "There are no orders in the system.";
+            return MESSAGE_NO_ORDER;
         }
 
         OrderDateTable dateTable = new OrderDateTable();
@@ -73,6 +75,7 @@ public class StatsOrderCommand extends Command {
             }
             dataRow[i] = "$" + Utils.formatCurrency((dateTable.getMonthRevenue(calendar.getTime())));
         }
+        dataRow = rotateRight(dataRow, 12 - currentMonth);
         table.addRow(dataRow);
         sb.append(table.toString());
         return sb.toString();

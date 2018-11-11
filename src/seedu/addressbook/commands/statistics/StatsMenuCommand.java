@@ -19,7 +19,7 @@ import seedu.addressbook.data.statistics.AsciiTable;
 import seedu.addressbook.data.statistics.QuantityRevenuePair;
 
 /**
- * Lists all food items in the address book to the user.
+ * Lists all menu statistics in the Rms to the user.
  */
 public class StatsMenuCommand extends Command {
 
@@ -28,7 +28,11 @@ public class StatsMenuCommand extends Command {
     public static final String MESSAGE_USAGE = COMMAND_WORD + ":\n"
             + "Displays statistics information for menu items.\n"
             + "Select date range from ddmmyyyy to ddmmyyyy with f/ddmmyyyy and t/ddmmyyyy\n\t"
-            + "Example: " + COMMAND_WORD + " [f/24102018] [t/26102018]";
+            + "Format: " + COMMAND_WORD + " [f/ddmmyyyy] [t/ddmmyyyy]\n\t"
+            + "Example: " + COMMAND_WORD + " f/12122017 t/11112018\n\t"
+            + "         " + COMMAND_WORD + " f/01012018";
+
+    public static final String MESSAGE_NO_ORDER = "There are no orders in the system to calculate menu stats.";
 
     private Date dateFrom;
     private Date dateTo;
@@ -56,14 +60,18 @@ public class StatsMenuCommand extends Command {
 
     @Override
     public CommandResult execute() {
-        return new StatsCommandResult(heading + getMenuStats());
+        if (getMenuStats().equalsIgnoreCase(MESSAGE_NO_ORDER)) {
+            return new StatsCommandResult(MESSAGE_NO_ORDER);
+        } else {
+            return new StatsCommandResult(heading + getMenuStats());
+        }
     }
 
     private String getMenuStats() {
         StringBuilder sb = new StringBuilder();
         List<ReadOnlyOrder> allOrders = rms.getAllOrders().immutableListView();
         if (allOrders.isEmpty()) {
-            return "There are no orders in the system to calculate menu stats.";
+            return MESSAGE_NO_ORDER;
         }
         List<ReadOnlyMenus> allMenu = rms.getAllMenus().immutableListView();
         Map<ReadOnlyMenus, QuantityRevenuePair> allMenuSales = new TreeMap<>();
@@ -153,7 +161,7 @@ public class StatsMenuCommand extends Command {
         return calendar.getTime();
     }
 
-    private static Map<String, ReadOnlyMenus> getBs(List<ReadOnlyOrder> allOrders, List<ReadOnlyMenus> allMenu) {
+    public static Map<String, ReadOnlyMenus> getBs(List<ReadOnlyOrder> allOrders, List<ReadOnlyMenus> allMenu) {
         if (allOrders.isEmpty()) {
             return null;
         }

@@ -22,7 +22,8 @@ import seedu.addressbook.commands.menu.MenuDeleteCommand;
 import seedu.addressbook.commands.menu.MenuFindCommand;
 import seedu.addressbook.commands.menu.MenuListByTypeCommand;
 import seedu.addressbook.commands.menu.MenuListCommand;
-import seedu.addressbook.commands.menu.MenuViewAllCommand;
+import seedu.addressbook.commands.menu.MenuRecommendationCommand;
+import seedu.addressbook.commands.menu.MenuShowMainMenuCommand;
 import seedu.addressbook.commands.order.DraftOrderClearCommand;
 import seedu.addressbook.commands.order.DraftOrderConfirmCommand;
 import seedu.addressbook.commands.order.DraftOrderEditCustomerCommand;
@@ -32,12 +33,14 @@ import seedu.addressbook.commands.order.OrderClearCommand;
 import seedu.addressbook.commands.order.OrderDeleteCommand;
 import seedu.addressbook.commands.order.OrderListCommand;
 import seedu.addressbook.commands.statistics.StatsEmployeeCommand;
+import seedu.addressbook.commands.statistics.StatsHelpCommand;
 import seedu.addressbook.commands.statistics.StatsMemberCommand;
 import seedu.addressbook.commands.statistics.StatsMenuCommand;
 import seedu.addressbook.commands.statistics.StatsOrderCommand;
 import seedu.addressbook.common.Messages;
 import seedu.addressbook.data.exception.IllegalValueException;
 import seedu.addressbook.data.member.Member;
+import seedu.addressbook.data.member.MemberEmail;
 import seedu.addressbook.data.member.MemberName;
 import seedu.addressbook.data.member.ReadOnlyMember;
 import seedu.addressbook.data.menu.Menu;
@@ -92,14 +95,27 @@ public class ParserTest {
     }
 
     @Test
-    public void menuListByTypeCommand_invalidArgs() {
+    public void menuRecommendationCommand_parsedCorrectly() {
+        final String input = "recommendations";
+        parseAndAssertCommandType(input, MenuRecommendationCommand.class);
+    }
+
+    @Test
+    public void menuShowMainMenuCommand_parsedCorrectly() {
+        final String input = "showmainmenu";
+        parseAndAssertCommandType(input, MenuShowMainMenuCommand.class);
+    }
+
+    @Test
+    public void menuListByTypeCommand_noArgs() {
         // no keywords
         final String inputs = "listmenutype";
         final String resultMessage =
-                String.format(MenuListByTypeCommand.MESSAGE_ERROR, MenuListByTypeCommand.MESSAGE_USAGE);
-        //parseAndAssertIncorrectWithMessage(resultMessage, inputs);
-        parseAndAssertCommandType(inputs, IncorrectCommand.class);
+                String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, MenuListByTypeCommand.MESSAGE_USAGE);
+
+        parseAndAssertIncorrectWithMessage(resultMessage, inputs);
     }
+
     @Test
     public void menuListByTypeCommand_validArgs_parsedCorrectly() {
         final String type = "main";
@@ -136,8 +152,14 @@ public class ParserTest {
     }
 
     @Test
+    public void statsHelpCommand_parsedCorrectly() {
+        final String input = "statistics";
+        parseAndAssertCommandType(input, StatsHelpCommand.class);
+    }
+
+    @Test
     public void memberListCommand_parsedCorrectly() {
-        final String input = "listmembers";
+        final String input = "listmember";
         parseAndAssertCommandType(input, MemberListCommand.class);
     }
 
@@ -183,7 +205,7 @@ public class ParserTest {
 
     @Test
     public void menuDeleteCommand_noArgs() {
-        final String[] inputs = { "deletemenu", "deletemenu " };
+        final String[] inputs = { "delmenu", "delmenu " };
         final String resultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
                 MenuDeleteCommand.MESSAGE_USAGE);
         parseAndAssertIncorrectWithMessage(resultMessage, inputs);
@@ -191,7 +213,7 @@ public class ParserTest {
 
     @Test
     public void menuDeleteCommand_argsIsNotSingleNumber() {
-        final String[] inputs = { "deletemenu notAnumber ", "deletemenu 8*wh12", "deletemenu 1 2 3 4 5" };
+        final String[] inputs = { "delmenu notAnumber ", "delmenu 8*wh12", "delmenu 1 2 3 4 5" };
         final String resultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
                 MenuDeleteCommand.MESSAGE_USAGE);
         parseAndAssertIncorrectWithMessage(resultMessage, inputs);
@@ -200,32 +222,8 @@ public class ParserTest {
     @Test
     public void menuDeleteCommand_numericArg_indexParsedCorrectly() {
         final int testIndex = 1;
-        final String input = "deletemenu " + testIndex;
+        final String input = "delmenu " + testIndex;
         final MenuDeleteCommand result = parseAndAssertCommandType(input, MenuDeleteCommand.class);
-        assertEquals(result.getTargetIndex(), testIndex);
-    }
-
-    @Test
-    public void menuViewAllCommand_noArgs() {
-        final String[] inputs = { "viewallmenu", "viewallmenu " };
-        final String resultMessage =
-                String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, MenuViewAllCommand.MESSAGE_USAGE);
-        parseAndAssertIncorrectWithMessage(resultMessage, inputs);
-    }
-
-    @Test
-    public void menuViewAllCommand_argsIsNotSingleNumber() {
-        final String[] inputs = { "viewallmenu notAnumber ", "viewallmenu 8*wh12", "viewallmenu 1 2 3 4 5" };
-        final String resultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
-                MenuViewAllCommand.MESSAGE_USAGE);
-        parseAndAssertIncorrectWithMessage(resultMessage, inputs);
-    }
-
-    @Test
-    public void menuViewAllCommand_numericArg_indexParsedCorrectly() {
-        final int testIndex = 3;
-        final String input = "viewallmenu " + testIndex;
-        final MenuViewAllCommand result = parseAndAssertCommandType(input, MenuViewAllCommand.class);
         assertEquals(result.getTargetIndex(), testIndex);
     }
 
@@ -480,7 +478,7 @@ public class ParserTest {
      */
     private static Member generateTestMember() {
         try {
-            return new Member(new MemberName(MemberName.EXAMPLE));
+            return new Member(new MemberName(MemberName.EXAMPLE), new MemberEmail(MemberEmail.EXAMPLE));
         } catch (IllegalValueException ie) {
             throw new RuntimeException("test member data should be valid by definition");
         }
@@ -491,7 +489,8 @@ public class ParserTest {
      */
     private static String convertMemberToAddCommandString(ReadOnlyMember member) {
         String addCommand = "addmember "
-                + member.getName().fullName;
+                + member.getName().fullName
+                + " e/" + member.getEmail().value;
 
         return addCommand;
     }
@@ -558,7 +557,7 @@ public class ParserTest {
             "draftdish 1 2"
         };
         final String resultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
-                DraftOrderEditDishCommand.MESSAGE_USAGE);
+                DraftOrderEditDishCommand.MESSAGE_INVALID_FORMAT);
         parseAndAssertIncorrectWithMessage(resultMessage, inputs);
     }
 
